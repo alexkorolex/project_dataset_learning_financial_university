@@ -1,0 +1,12 @@
+repos:
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.0
+    hooks:
+      - id: nbqa-black
+        additional_dependencies: [black]
+        files: \.ipynb$
+
+      - id: nbqa-isort
+        additional_dependencies: [isort]
+        args: ["--"]
+        files: \.ipynb$

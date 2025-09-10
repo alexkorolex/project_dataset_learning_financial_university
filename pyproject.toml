@@ -1,0 +1,13 @@
+[tool.nbqa.config]
+addopts = ["--nbqa-mutate"]
+
+[tool.nbqa.mutate]
+black = true
+ruff = true
+isort = true
+
+
+
+[tool.isort]
+profile = "black"
+line_length = 88

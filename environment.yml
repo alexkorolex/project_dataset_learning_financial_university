@@ -14,3 +14,10 @@ dependencies:
   - scikit-learn>=1.0.0 
   - yfinance>=0.1.70  
   - jupyter 
+
+  - pip:
+      - black
+      - isort
+      - ruff
+      - nbqa
+      - pre-commit
