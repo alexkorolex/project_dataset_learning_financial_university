@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_third_party = ["numpy", "pandas", "matplotlib", "seaborn", "sklearn", "yfinance"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "E302", "E303"]  # E302/E303 для пустых строк
+fixable = ["E", "F", "I"]  # Ограничиваем автофикс
