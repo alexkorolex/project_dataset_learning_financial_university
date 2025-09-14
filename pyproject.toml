@@ -9,5 +9,8 @@ known_third_party = ["numpy", "pandas", "matplotlib", "seaborn", "sklearn", "yfi
 
 [tool.ruff]
 line-length = 88
-select = ["E", "F", "W", "I", "E302", "E303"]  # E302/E303 для пустых строк
-fixable = ["E", "F", "I"]  # Ограничиваем автофикс
+preview = true
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+fixable = ["ALL"]

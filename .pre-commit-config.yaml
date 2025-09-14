@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.5  # Актуальная версия на 10.09.2025
+    rev: 1.9.1  # Актуальная версия на 10.09.2025
     hooks:
       - id: nbqa-isort
         additional_dependencies: [isort==5.13.2]
