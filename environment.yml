@@ -15,6 +15,8 @@ dependencies:
   - yfinance>=0.1.70  
   - jupyter 
   - catboost>=1.0.0
+  - imbalanced-learn>=0.14.0
+  - openssl>=3.5.3
 
   - pip:
       - black
