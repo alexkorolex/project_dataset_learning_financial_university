@@ -1,15 +1,10 @@
 repos:
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.9.1  # Актуальная версия на 10.09.2025
-    hooks:
-      - id: nbqa-isort
-        additional_dependencies: [isort==5.13.2]
-        args: []  # isort исправляет импорты автоматически
-        files: \.ipynb$
-      - id: nbqa-black
-        additional_dependencies: [black==24.8.0]
-        files: \.ipynb$
-      - id: nbqa-ruff
-        additional_dependencies: [ruff==0.6.4]
-        args: ["--fix"]  # ruff фиксит, что может
-        files: \.ipynb$
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks: [{id: black}]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.4
+    hooks: [{id: ruff, args: ["--fix"]}]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks: [{id: isort}]
