@@ -1,17 +1,14 @@
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import pandas as pd
 from catboost import CatBoostClassifier
+from imblearn.over_sampling import SMOTE
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from imblearn.over_sampling import SMOTE
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import (
-    OneHotEncoder,
-    SplineTransformer,
-    StandardScaler,
-)
+from sklearn.preprocessing import OneHotEncoder, SplineTransformer, StandardScaler
 from sklearn.utils import resample
 
 
@@ -26,19 +23,21 @@ def create_pipeline(
     use_splines: bool = True,
 ) -> Pipeline:
     num_transformer = Pipeline(
-        steps=[
-            (
-                "splines",
-                SplineTransformer(
-                    n_knots=5,
-                    degree=3,
-                    include_bias=True,
+        steps=(
+            [
+                (
+                    "splines",
+                    SplineTransformer(
+                        n_knots=5,
+                        degree=3,
+                        include_bias=True,
+                    ),
                 ),
-            ),
-            ("scaler", StandardScaler()),
-        ]
-        if use_splines
-        else [("scaler", StandardScaler())]
+                ("scaler", StandardScaler()),
+            ]
+            if use_splines
+            else [("scaler", StandardScaler())]
+        )
     )
     preprocessor = ColumnTransformer(
         transformers=[
@@ -59,10 +58,6 @@ def create_pipeline(
             ),
         ]
     )
-
-
-from typing import List, Union, Tuple
-from sklearn.impute import SimpleImputer
 
 
 def balance_with_resample(
@@ -118,24 +113,32 @@ def balance_with_resample(
             transformers=[
                 (
                     "num",
-                    Pipeline([
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler", StandardScaler()),
-                    ]),
+                    Pipeline(
+                        [
+                            ("imputer", SimpleImputer(strategy="median")),
+                            ("scaler", StandardScaler()),
+                        ]
+                    ),
                     num_features,
                 ),
                 (
                     "cat",
-                    Pipeline([
-                        (
-                            "imputer",
-                            SimpleImputer(strategy="constant", fill_value="unknown"),
-                        ),
-                        (
-                            "onehot",
-                            OneHotEncoder(handle_unknown="ignore", sparse_output=False),
-                        ),
-                    ]),
+                    Pipeline(
+                        [
+                            (
+                                "imputer",
+                                SimpleImputer(
+                                    strategy="constant", fill_value="unknown"
+                                ),
+                            ),
+                            (
+                                "onehot",
+                                OneHotEncoder(
+                                    handle_unknown="ignore", sparse_output=False
+                                ),
+                            ),
+                        ]
+                    ),
                     cat_features,
                 ),
             ]

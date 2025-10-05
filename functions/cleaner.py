@@ -8,7 +8,8 @@ def clean_numeric_features(df: DataFrame) -> DataFrame:
     Очистка числовых признаков с обработкой выбросов, пропусков и добавлением новых фич.
 
     Args:
-        df: DataFrame с числовыми признаками (age, balance, duration, campaign, pdays, previous).
+        df: DataFrame с числовыми признаками (age, balance, duration, campaign, pdays,
+        previous).
 
     Returns:
         DataFrame: Очищенный DataFrame с новыми признаками (balance_log, balance_group).
@@ -47,7 +48,8 @@ def clean_numeric_features(df: DataFrame) -> DataFrame:
         print(f"Correlation of duration with target: {corr_duration:.3f}")
         if corr_duration > 0.3:
             print(
-                "Warning: High correlation of duration with target. Consider excluding from features."
+                "Warning: High correlation of duration with target. Consider excluding"
+                "from features."
             )
     dur_high = df["duration"].quantile(0.99)
     df = df[df["duration"] <= dur_high]
@@ -68,7 +70,8 @@ def clean_numeric_features(df: DataFrame) -> DataFrame:
 
     # 8. Логирование итогов
     print(
-        f"Total rows removed: {initial_rows - len(df)} ({(initial_rows - len(df)) / initial_rows:.2%})"
+        f"""Total rows removed: {initial_rows - len(df)}
+        ({(initial_rows - len(df)) / initial_rows:.2%})"""
     )
     print(f"Final shape: {df.shape}")
 
