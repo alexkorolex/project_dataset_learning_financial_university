@@ -1,4 +1,3 @@
-# scripts/train.py
 from __future__ import annotations
 import argparse
 import json
@@ -11,13 +10,12 @@ from joblib import dump
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-from bank.metrics import compute_metrics, curves, find_best_threshold
-from bank.pipelines import make_linear_preprocessor, make_tree_preprocessor
-from bank.plotting import save_roc_pr_curves
-from bank.preprocess import prepare_frames
-from bank.utils import ensure_dir, load_config, save_json, set_seed
-from bank.models import make_estimator
-
+from metrics import compute_metrics, curves, find_best_threshold
+from pipelines import make_linear_preprocessor, make_tree_preprocessor
+from plotting import save_roc_pr_curves
+from preprocess import prepare_frames
+from utils import ensure_dir, load_config, save_json, set_seed
+from models import make_estimator
 
 def setup_logger() -> None:
     logging.basicConfig(
@@ -26,13 +24,9 @@ def setup_logger() -> None:
         datefmt="%H:%M:%S",
     )
 
-
 def _fit_predict_catboost(Xtr, ytr, Xva, yva, categorical_cols, params):
-    """Train CatBoost with native categorical features and return (model, prob_valid)."""
     from catboost import CatBoostClassifier
-    # индексы категориальных колонок по порядку столбцов
     cat_idx = [Xtr.columns.get_loc(c) for c in categorical_cols if c in Xtr.columns]
-
     model = CatBoostClassifier(**params)
     model.fit(
         Xtr, ytr,
@@ -42,7 +36,6 @@ def _fit_predict_catboost(Xtr, ytr, Xva, yva, categorical_cols, params):
     )
     prob = model.predict_proba(Xva)[:, 1]
     return model, prob
-
 
 def main(cfg_path: str) -> None:
     setup_logger()
@@ -58,7 +51,6 @@ def main(cfg_path: str) -> None:
     logging.info("CWD: %s", cwd)
     logging.info("Artifacts dir: %s", art_dir)
 
-    # --- load & prepare ---
     raw = Path(cfg["data"]["raw_dir"]).resolve()
     logging.info("Loading data from: %s", raw)
 
@@ -68,7 +60,6 @@ def main(cfg_path: str) -> None:
     logging.info("Prepared frames: X=%s y=%s | test=%s", X.shape, y.shape, X_test.shape)
     logging.info("Features -> numeric=%s | categorical=%s", numeric, categorical)
 
-    # --- split ---
     logging.info(
         "Splitting train/valid (test_size=%s, random_state=%s)",
         cfg["data"]["val_size"],
@@ -83,7 +74,6 @@ def main(cfg_path: str) -> None:
     )
     logging.info("Split done: Xtr=%s | Xva=%s", Xtr.shape, Xva.shape)
 
-    # --- train each model ---
     metrics_valid: dict[str, dict] = {}
     for name, spec in cfg["models"].items():
         kind = spec["type"].lower()
@@ -96,7 +86,6 @@ def main(cfg_path: str) -> None:
             dt = time.perf_counter() - t0
             logging.info("Model %s trained in %.2fs", name, dt)
 
-            # threshold tuning / metrics
             thr = find_best_threshold(yva, prob, metric="f1") if cfg["thresholds"].get("tune_on_valid", True) else cfg["thresholds"]["default"]
             m = compute_metrics(yva, prob, threshold=thr)
             metrics_valid[name] = m
@@ -105,7 +94,6 @@ def main(cfg_path: str) -> None:
                 name, m["accuracy"], m["precision"], m["recall"], m["f1"], m["roc_auc"], m["threshold"],
             )
 
-            # save model (CatBoost native format) + preds + curves
             cbm_path = art_dir / f"model_{name}.cbm"
             model.save_model(cbm_path)
             logging.info("Saved CatBoost model: %s", cbm_path)
@@ -121,10 +109,8 @@ def main(cfg_path: str) -> None:
                 art_dir / f"curves_{name}_roc.png",
                 art_dir / f"curves_{name}_pr.png",
             )
+            continue
 
-            continue  # к следующей модели
-
-        # --- sklearn-путь (logreg, rf, hgbt) ---
         is_linear = (kind == "logreg")
         pre = make_linear_preprocessor(numeric, categorical) if is_linear else make_tree_preprocessor(numeric, categorical)
 
@@ -135,13 +121,11 @@ def main(cfg_path: str) -> None:
         dt = time.perf_counter() - t0
         logging.info("Model %s trained in %.2fs", name, dt)
 
-        # proba/score
         if hasattr(pipe[-1], "predict_proba"):
             prob = pipe.predict_proba(Xva)[:, 1]
         else:
             prob = pipe.decision_function(Xva)
 
-        # threshold tuning / metrics
         thr = find_best_threshold(yva, prob, metric="f1") if cfg["thresholds"].get("tune_on_valid", True) else cfg["thresholds"]["default"]
         m = compute_metrics(yva, prob, threshold=thr)
         metrics_valid[name] = m
@@ -150,7 +134,6 @@ def main(cfg_path: str) -> None:
             name, m["accuracy"], m["precision"], m["recall"], m["f1"], m["roc_auc"], m["threshold"],
         )
 
-        # save model & preds & curves
         model_path = art_dir / f"model_{name}.joblib"
         dump(pipe, model_path)
         logging.info("Saved model: %s", model_path)
@@ -167,12 +150,10 @@ def main(cfg_path: str) -> None:
             art_dir / f"curves_{name}_pr.png",
         )
 
-    # --- save metrics summary ---
     metrics_path = art_dir / "metrics_valid.json"
     save_json(metrics_valid, metrics_path)
     logging.info("Saved metrics summary: %s", metrics_path)
     logging.info("Done in %.2fs", time.perf_counter() - t_start)
-
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

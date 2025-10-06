@@ -1,0 +1,38 @@
+stages:
+  eda:
+    cmd: python eda_summary.py --config config/config.yaml
+    deps:
+      - eda_summary.py
+      - utils.py
+      - config/config.yaml
+      - data/raw/train.csv
+      - data/raw/test.csv
+    outs:
+      - artifacts/eda_summary.json
+
+  train:
+    cmd: python train.py --config config/config.yaml
+    deps:
+      - train.py
+      - preprocess.py
+      - pipelines.py
+      - models.py
+      - metrics.py
+      - plotting.py
+      - utils.py
+      - config/config.yaml
+      - data/raw/train.csv
+    outs:
+      - artifacts
+
+  infer:
+    cmd: python infer.py --config config/config.yaml
+    deps:
+      - infer.py
+      - preprocess.py
+      - utils.py
+      - config/config.yaml
+      - data/raw/test.csv
+      - artifacts
+    outs:
+      - artifacts

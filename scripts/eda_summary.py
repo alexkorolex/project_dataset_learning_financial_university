@@ -2,7 +2,7 @@ from __future__ import annotations
 import argparse, json
 from pathlib import Path
 import pandas as pd
-from bank.utils import load_config, ensure_dir
+from utils import load_config, ensure_dir
 
 def main(cfg_path: str):
     cfg = load_config(cfg_path)

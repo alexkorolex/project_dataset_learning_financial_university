@@ -9,13 +9,12 @@ def make_linear_preprocessor(numeric: List[str], categorical: List[str]) -> Colu
     return ColumnTransformer(
         transformers=[
             ("num", Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())]), numeric),
-            ("cat", OneHotEncoder(handle_unknown="ignore"), categorical),  # sparse OK for LR
+            ("cat", OneHotEncoder(handle_unknown="ignore"), categorical),
         ],
         remainder="drop",
     )
 
 def make_tree_preprocessor(numeric: List[str], categorical: List[str]) -> ColumnTransformer:
-    # Trees don't benefit from scaling; OrdinalEncoder is compact & works well.
     return ColumnTransformer(
         transformers=[
             ("num", SimpleImputer(strategy="median"), numeric),

@@ -12,21 +12,17 @@ def _map_yes_no(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
     return df
 
 def prepare_frames(train_path: str | Path, test_path: str | Path, cfg: Dict[str, Any]):
-    # load
     train = pd.read_csv(train_path)
     test = pd.read_csv(test_path)
 
-    # drop service columns
     drop_cols = cfg["data"].get("drop_cols", [])
     train = train.drop(columns=[c for c in drop_cols if c in train.columns])
     test = test.drop(columns=[c for c in drop_cols if c in test.columns])
 
-    # yes/no -> {0,1}
     yn_cols = cfg["data"].get("yn_binary_cols", [])
     train = _map_yes_no(train, yn_cols)
     test = _map_yes_no(test, yn_cols)
 
-    # leakage control: optionally remove 'duration'
     numeric = list(cfg["features"]["numeric"])
     if not cfg["data"].get("use_duration", False):
         if "duration" in numeric:
@@ -35,23 +31,19 @@ def prepare_frames(train_path: str | Path, test_path: str | Path, cfg: Dict[str,
             if "duration" in df.columns:
                 df.drop(columns=["duration"], inplace=True)
 
-    # add pdays indicator
     if cfg["features"].get("add_pdays_indicator", True) and "pdays" in train.columns:
         for df in (train, test):
             df["pdays_is_never"] = (df["pdays"] == -1).astype(int)
         if "pdays_is_never" not in numeric:
             numeric = numeric + ["pdays_is_never"]
 
-    # assemble X, y
     target = cfg["data"]["target"]
     X = train.drop(columns=[target])
     y = train[target].astype(int)
     X_test = test.copy()
 
-    # optional subsample for speed
     nsub = cfg["data"].get("subsample_rows")
     if nsub is not None and len(X) > nsub:
-        # stratified subsample
         pos = y[y==1].index
         neg = y[y==0].index
         keep_pos = int(nsub * y.mean())
@@ -61,7 +53,6 @@ def prepare_frames(train_path: str | Path, test_path: str | Path, cfg: Dict[str,
         idx = np.concatenate([pos_idx, neg_idx])
         X = X.loc[idx].reset_index(drop=True); y = y.loc[idx].reset_index(drop=True)
 
-    # feature lists after adjustments
     categorical_cfg = list(cfg["features"]["categorical"])
     categorical = [c for c in categorical_cfg if c in X.columns]
     numeric = [c for c in numeric if c in X.columns]

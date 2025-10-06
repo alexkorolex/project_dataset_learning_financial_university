@@ -3,14 +3,14 @@ import argparse, json
 from pathlib import Path
 import pandas as pd
 from joblib import load
-from bank.utils import load_config, ensure_dir
-from bank.preprocess import prepare_frames
+from utils import load_config, ensure_dir
+from preprocess import prepare_frames
 
 def main(cfg_path: str):
     cfg = load_config(cfg_path)
     raw = Path(cfg["data"]["raw_dir"])
 
-    test_raw = pd.read_csv(raw / "test.csv")  # для настоящего id в сабмишене
+    test_raw = pd.read_csv(raw / "test.csv")
     test_id = test_raw["id"] if "id" in test_raw.columns else pd.Series(range(len(test_raw)))
 
     X, y, X_test, numeric, categorical = prepare_frames(raw / "train.csv", raw / "test.csv", cfg)
