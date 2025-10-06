@@ -3,7 +3,6 @@ from typing import Dict, Any, Tuple
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.experimental import enable_hist_gradient_boosting  # noqa: F401
 from sklearn.ensemble import HistGradientBoostingClassifier
 
 def make_estimator(kind: str, params: Dict[str, Any]):

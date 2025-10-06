@@ -39,6 +39,8 @@ def prepare_frames(train_path: str | Path, test_path: str | Path, cfg: Dict[str,
     if cfg["features"].get("add_pdays_indicator", True) and "pdays" in train.columns:
         for df in (train, test):
             df["pdays_is_never"] = (df["pdays"] == -1).astype(int)
+        if "pdays_is_never" not in numeric:
+            numeric = numeric + ["pdays_is_never"]
 
     # assemble X, y
     target = cfg["data"]["target"]
@@ -60,7 +62,11 @@ def prepare_frames(train_path: str | Path, test_path: str | Path, cfg: Dict[str,
         X = X.loc[idx].reset_index(drop=True); y = y.loc[idx].reset_index(drop=True)
 
     # feature lists after adjustments
-    categorical = [c for c in cfg["features"]["categorical"] if c in X.columns]
+    categorical_cfg = list(cfg["features"]["categorical"])
+    categorical = [c for c in categorical_cfg if c in X.columns]
     numeric = [c for c in numeric if c in X.columns]
+    overlap = set(numeric) & set(categorical)
+    if overlap:
+        categorical = [c for c in categorical if c not in overlap]
 
     return X, y, X_test, numeric, categorical

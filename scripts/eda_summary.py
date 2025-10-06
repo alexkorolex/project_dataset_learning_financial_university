@@ -20,8 +20,9 @@ def main(cfg_path: str):
         "missing_train": train.isna().sum().to_dict(),
         "missing_test": test.isna().sum().to_dict(),
     }
-    ensure_dir("artifacts")
-    with open("artifacts/eda_summary.json","w") as f:
+    out_dir = Path(cfg["artifacts"]["dir"])
+    ensure_dir(out_dir)
+    with open(out_dir / "eda_summary.json","w") as f:
         json.dump(summary, f, indent=2)
     print(json.dumps(summary, indent=2))
 
