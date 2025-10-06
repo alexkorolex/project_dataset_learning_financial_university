@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.bank.metrics import compute_metrics, find_best_threshold
+from bank.metrics import compute_metrics, find_best_threshold
 
 
 def test_compute_and_tune():
