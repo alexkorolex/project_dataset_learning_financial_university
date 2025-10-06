@@ -1,10 +1,10 @@
 from __future__ import annotations
-import argparse, json
+import argparse
 from pathlib import Path
 import pandas as pd
 from joblib import load
-from utils import load_config, ensure_dir
-from preprocess import prepare_frames
+from bank.utils import load_config, ensure_dir
+from bank.preprocess import prepare_frames
 
 def main(cfg_path: str):
     cfg = load_config(cfg_path)

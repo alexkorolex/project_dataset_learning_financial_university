@@ -10,12 +10,12 @@ from joblib import dump
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-from metrics import compute_metrics, curves, find_best_threshold
-from pipelines import make_linear_preprocessor, make_tree_preprocessor
-from plotting import save_roc_pr_curves
-from preprocess import prepare_frames
-from utils import ensure_dir, load_config, save_json, set_seed
-from models import make_estimator
+from bank.metrics import compute_metrics, curves, find_best_threshold
+from bank.pipelines import make_linear_preprocessor, make_tree_preprocessor
+from bank.plotting import save_roc_pr_curves
+from bank.preprocess import prepare_frames
+from bank.utils import ensure_dir, load_config, save_json, set_seed
+from bank.models import make_estimator
 
 def setup_logger() -> None:
     logging.basicConfig(
