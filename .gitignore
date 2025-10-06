@@ -209,3 +209,28 @@ __marimo__/
 
 *.csv
 catboost_info/
+
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+
+# Data & artifacts
+data/raw/
+artifacts/
+*.joblib
+
+# Jupyter & plots
+.ipynb_checkpoints/
+*.png
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+/artifacts

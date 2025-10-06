@@ -1,0 +1,31 @@
+stages:
+  eda:
+    cmd: python tools/run_module.py scripts.eda_summary -- --config config/config.yaml
+    deps:
+      - tools/run_module.py
+      - scripts/eda_summary.py
+      - src/
+      - config/config.yaml
+      - data/raw/train.csv
+      - data/raw/test.csv
+
+  train:
+    cmd: python tools/run_module.py scripts.train -- --config config/config.yaml
+    deps:
+      - tools/run_module.py
+      - scripts/train.py
+      - src/
+      - config/config.yaml
+      - data/raw/train.csv
+    outs:
+      - artifacts
+
+  infer:
+    cmd: python tools/run_module.py scripts.infer -- --config config/config.yaml
+    deps:
+      - tools/run_module.py
+      - scripts/infer.py
+      - src/
+      - config/config.yaml
+      - data/raw/test.csv
+      - artifacts
