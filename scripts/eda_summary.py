@@ -1,8 +1,13 @@
 from __future__ import annotations
-import argparse, json
+
+import argparse
+import json
 from pathlib import Path
+
 import pandas as pd
-from bank.utils import load_config, ensure_dir
+
+from bank.utils import ensure_dir, load_config
+
 
 def main(cfg_path: str):
     cfg = load_config(cfg_path)
@@ -22,9 +27,10 @@ def main(cfg_path: str):
     }
     out_dir = Path(cfg["artifacts"]["dir"])
     ensure_dir(out_dir)
-    with open(out_dir / "eda_summary.json","w") as f:
+    with open(out_dir / "eda_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
     print(json.dumps(summary, indent=2))
+
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

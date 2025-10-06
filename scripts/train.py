@@ -1,6 +1,6 @@
 from __future__ import annotations
+
 import argparse
-import json
 import logging
 import time
 from pathlib import Path
@@ -11,11 +11,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
 from bank.metrics import compute_metrics, curves, find_best_threshold
+from bank.models import make_estimator
 from bank.pipelines import make_linear_preprocessor, make_tree_preprocessor
 from bank.plotting import save_roc_pr_curves
 from bank.preprocess import prepare_frames
 from bank.utils import ensure_dir, load_config, save_json, set_seed
-from bank.models import make_estimator
+
 
 def setup_logger() -> None:
     logging.basicConfig(
@@ -24,18 +25,22 @@ def setup_logger() -> None:
         datefmt="%H:%M:%S",
     )
 
+
 def _fit_predict_catboost(Xtr, ytr, Xva, yva, categorical_cols, params):
     from catboost import CatBoostClassifier
+
     cat_idx = [Xtr.columns.get_loc(c) for c in categorical_cols if c in Xtr.columns]
     model = CatBoostClassifier(**params)
     model.fit(
-        Xtr, ytr,
+        Xtr,
+        ytr,
         cat_features=cat_idx,
         eval_set=(Xva, yva),
         verbose=params.get("verbose", False),
     )
     prob = model.predict_proba(Xva)[:, 1]
     return model, prob
+
 
 def main(cfg_path: str) -> None:
     setup_logger()
@@ -86,12 +91,24 @@ def main(cfg_path: str) -> None:
             dt = time.perf_counter() - t0
             logging.info("Model %s trained in %.2fs", name, dt)
 
-            thr = find_best_threshold(yva, prob, metric="f1") if cfg["thresholds"].get("tune_on_valid", True) else cfg["thresholds"]["default"]
+            thr = (
+                find_best_threshold(yva, prob, metric="f1")
+                if cfg["thresholds"].get("tune_on_valid", True)
+                else cfg["thresholds"]["default"]
+            )
             m = compute_metrics(yva, prob, threshold=thr)
             metrics_valid[name] = m
             logging.info(
-                "Metrics %s -> accuracy=%.4f precision=%.4f recall=%.4f f1=%.4f roc_auc=%.4f thr=%.4f",
-                name, m["accuracy"], m["precision"], m["recall"], m["f1"], m["roc_auc"], m["threshold"],
+                """Metrics %s -> accuracy=%.4f precision=%.4f recall=%.4f f1=%.4f
+                roc_auc=%.4f
+                thr=%.4f""",
+                name,
+                m["accuracy"],
+                m["precision"],
+                m["recall"],
+                m["f1"],
+                m["roc_auc"],
+                m["threshold"],
             )
 
             cbm_path = art_dir / f"model_{name}.cbm"
@@ -111,8 +128,12 @@ def main(cfg_path: str) -> None:
             )
             continue
 
-        is_linear = (kind == "logreg")
-        pre = make_linear_preprocessor(numeric, categorical) if is_linear else make_tree_preprocessor(numeric, categorical)
+        is_linear = kind == "logreg"
+        pre = (
+            make_linear_preprocessor(numeric, categorical)
+            if is_linear
+            else make_tree_preprocessor(numeric, categorical)
+        )
 
         logging.info(">>> Training model: %s (%s) ...", name, kind)
         t0 = time.perf_counter()
@@ -126,12 +147,24 @@ def main(cfg_path: str) -> None:
         else:
             prob = pipe.decision_function(Xva)
 
-        thr = find_best_threshold(yva, prob, metric="f1") if cfg["thresholds"].get("tune_on_valid", True) else cfg["thresholds"]["default"]
+        thr = (
+            find_best_threshold(yva, prob, metric="f1")
+            if cfg["thresholds"].get("tune_on_valid", True)
+            else cfg["thresholds"]["default"]
+        )
         m = compute_metrics(yva, prob, threshold=thr)
         metrics_valid[name] = m
         logging.info(
-            "Metrics %s -> accuracy=%.4f precision=%.4f recall=%.4f f1=%.4f roc_auc=%.4f thr=%.4f",
-            name, m["accuracy"], m["precision"], m["recall"], m["f1"], m["roc_auc"], m["threshold"],
+            """Metrics %s -> accuracy=%.4f precision=%.4f recall=%.4f f1=%.4f
+            roc_auc=%.4f
+            thr=%.4f""",
+            name,
+            m["accuracy"],
+            m["precision"],
+            m["recall"],
+            m["f1"],
+            m["roc_auc"],
+            m["threshold"],
         )
 
         model_path = art_dir / f"model_{name}.joblib"
@@ -154,6 +187,7 @@ def main(cfg_path: str) -> None:
     save_json(metrics_valid, metrics_path)
     logging.info("Saved metrics summary: %s", metrics_path)
     logging.info("Done in %.2fs", time.perf_counter() - t_start)
+
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

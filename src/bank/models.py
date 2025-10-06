@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Dict, Any, Tuple
-import numpy as np
+
+from typing import Any, Dict
+
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import HistGradientBoostingClassifier
+
 
 def make_estimator(kind: str, params: Dict[str, Any]):
     k = kind.lower()

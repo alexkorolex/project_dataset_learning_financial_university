@@ -1,4 +1,7 @@
-import sys, os, runpy
+import os
+import runpy
+import sys
+
 
 def main():
     if len(sys.argv) < 2:
@@ -16,7 +19,8 @@ def main():
     proj_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     src_path = os.path.join(proj_root, "src")
 
-    # Ensure imports work from both project root (for 'scripts.*') and 'src' (for 'bank.*')
+    # Ensure imports work from both project root (for 'scripts.*') and 'src'
+    #  (for 'bank.*')
     for p in (proj_root, src_path):
         if p not in sys.path:
             sys.path.insert(0, p)
@@ -34,6 +38,7 @@ def main():
         module = target
         sys.argv = [module] + passthrough
         runpy.run_module(module, run_name="__main__")
+
 
 if __name__ == "__main__":
     main()

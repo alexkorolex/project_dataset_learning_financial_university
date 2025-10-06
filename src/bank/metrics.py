@@ -1,7 +1,18 @@
 from __future__ import annotations
-from typing import Dict, Any, Tuple
+
+from typing import Dict
+
 import numpy as np
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, roc_curve, precision_recall_curve
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_recall_curve,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    roc_curve,
+)
+
 
 def compute_metrics(y_true, y_prob, threshold: float = 0.5) -> Dict[str, float]:
     y_pred = (y_prob >= threshold).astype(int)
@@ -14,11 +25,12 @@ def compute_metrics(y_true, y_prob, threshold: float = 0.5) -> Dict[str, float]:
         "threshold": float(threshold),
     }
 
+
 def find_best_threshold(y_true, y_prob, metric: str = "f1") -> float:
     # scan thresholds by unique probabilities (bounded)
     thresholds = np.unique(y_prob)
     if thresholds.size > 2000:
-        thresholds = np.quantile(y_prob, q=np.linspace(0,1,2001))
+        thresholds = np.quantile(y_prob, q=np.linspace(0, 1, 2001))
     best_t, best_s = 0.5, -1.0
     for t in thresholds:
         y_pred = (y_prob >= t).astype(int)
@@ -29,6 +41,7 @@ def find_best_threshold(y_true, y_prob, metric: str = "f1") -> float:
         if s > best_s:
             best_s, best_t = s, float(t)
     return float(best_t)
+
 
 def curves(y_true, y_prob):
     fpr, tpr, _ = roc_curve(y_true, y_prob)

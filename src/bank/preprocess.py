@@ -1,8 +1,11 @@
 from __future__ import annotations
-from typing import Dict, Any, List
+
 from pathlib import Path
-import pandas as pd
+from typing import Any, Dict, List
+
 import numpy as np
+import pandas as pd
+
 
 def _map_yes_no(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
     mapping = {"yes": 1, "no": 0}
@@ -10,6 +13,7 @@ def _map_yes_no(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
         if c in df.columns:
             df[c] = df[c].map(mapping).astype("Int64")
     return df
+
 
 def prepare_frames(train_path: str | Path, test_path: str | Path, cfg: Dict[str, Any]):
     train = pd.read_csv(train_path)
@@ -44,14 +48,15 @@ def prepare_frames(train_path: str | Path, test_path: str | Path, cfg: Dict[str,
 
     nsub = cfg["data"].get("subsample_rows")
     if nsub is not None and len(X) > nsub:
-        pos = y[y==1].index
-        neg = y[y==0].index
+        pos = y[y == 1].index
+        neg = y[y == 0].index
         keep_pos = int(nsub * y.mean())
         keep_neg = nsub - keep_pos
         pos_idx = np.random.RandomState(42).choice(pos, size=keep_pos, replace=False)
         neg_idx = np.random.RandomState(42).choice(neg, size=keep_neg, replace=False)
         idx = np.concatenate([pos_idx, neg_idx])
-        X = X.loc[idx].reset_index(drop=True); y = y.loc[idx].reset_index(drop=True)
+        X = X.loc[idx].reset_index(drop=True)
+        y = y.loc[idx].reset_index(drop=True)
 
     categorical_cfg = list(cfg["features"]["categorical"])
     categorical = [c for c in categorical_cfg if c in X.columns]
