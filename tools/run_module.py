@@ -1,7 +1,3 @@
-# tools/run_module.py
-# Cross-platform launcher that:
-#  - Adds project root and 'src' to sys.path
-#  - Runs either a module (e.g., 'scripts.train') or a script path (e.g., 'scripts/train.py')
 import sys, os, runpy
 
 def main():

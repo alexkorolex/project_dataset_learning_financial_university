@@ -1,5 +1,5 @@
 import pandas as pd
-from preprocess import prepare_frames
+from bank.preprocess import prepare_frames
 
 def test_prepare_frames_basic(tmp_path):
     train = pd.DataFrame({

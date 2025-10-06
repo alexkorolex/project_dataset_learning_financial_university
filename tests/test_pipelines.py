@@ -1,5 +1,5 @@
 import pandas as pd
-from pipelines import make_linear_preprocessor, make_tree_preprocessor
+from bank.pipelines import make_linear_preprocessor, make_tree_preprocessor
 
 def test_preprocessors_fit_transform():
     X = pd.DataFrame({

@@ -4,7 +4,7 @@ ifeq ($(OS),Windows_NT)
   PYTHON := .venv\Scripts\python.exe
   PIP    := .venv\Scripts\pip.exe
   CREATE_VENV := py -3 -m venv .venv
-  SET_ENV := set PYTHONPATH=. &&
+  SET_ENV := set PYTHONPATH=src &&
   SEP := \\
   RM := rmdir /S /Q
 else
@@ -12,7 +12,7 @@ else
   PYTHON := .venv/bin/python
   PIP    := .venv/bin/pip
   CREATE_VENV := python3 -m venv .venv
-  SET_ENV := PYTHONPATH=.
+  SET_ENV := PYTHONPATH=src
   SEP := /
   RM := rm -rf
 endif
@@ -29,7 +29,7 @@ help:
 	@echo "  train       - train models, save artifacts & metrics"
 	@echo "  infer       - predict on test.csv, write submissions"
 	@echo "  lint        - run ruff/black/isort checks"
-	@echo "  test        - run pytest"
+	@echo "  test        - run pytest (ensures deps installed)"
 	@echo "  dvc-init    - initialize DVC in repo"
 	@echo "  dvc-repro   - run full DVC pipeline (if dvc.yaml exists)"
 	@echo "  pre-commit  - run pre-commit on all files"
@@ -46,13 +46,13 @@ install: venv
 	$(PIP) install -r requirements.txt
 
 eda:
-	$(SET_ENV) $(PYTHON) eda_summary.py --config config$(SEP)config.yaml
+	$(SET_ENV) $(PYTHON) -m scripts.eda_summary --config config$(SEP)config.yaml
 
 train:
-	$(SET_ENV) $(PYTHON) train.py --config config$(SEP)config.yaml
+	$(SET_ENV) $(PYTHON) -m scripts.train --config config$(SEP)config.yaml
 
 infer:
-	$(SET_ENV) $(PYTHON) infer.py --config config$(SEP)config.yaml
+	$(SET_ENV) $(PYTHON) -m scripts.infer --config config$(SEP)config.yaml
 
 lint:
 	$(SET_ENV) $(PYTHON) -m ruff check .
