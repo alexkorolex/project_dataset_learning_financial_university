@@ -1,6 +1,6 @@
 # Бинарная классификация (Bank Marketing)
 
-https://www.kaggle.com/datasets/adilshamim8/binary-classification-with-a-bank-dataset?utm_source=chatgpt.com
+https://www.kaggle.com/datasets/adilshamim8/binary-classification-with-a-bank-dataset
 
 ---
 
