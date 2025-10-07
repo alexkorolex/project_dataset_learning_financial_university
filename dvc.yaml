@@ -20,6 +20,14 @@ stages:
     outs:
       - artifacts
 
+  collect_metrics:
+    cmd: python -c "import os,shutil; os.makedirs('reports', exist_ok=True); shutil.copyfile('artifacts/metrics_valid.json','reports/metrics_valid.json')"
+    deps:
+      - artifacts/metrics_valid.json
+    metrics:
+      - reports/metrics_valid.json:
+          cache: false
+
   infer:
     cmd: python tools/run_module.py scripts.infer -- --config config/config.yaml
     deps:
